@@ -6,5 +6,5 @@ Write-FormatView -TypeName OpenSCAD.Output -Action {
     Write-FormatViewExpression -Newline
 
     Write-FormatViewExpression -Text "Rendering Time" -if { $_.TotalRenderingTime }
-    Write-FormatViewExpression -if { $_.TotalRenderingTime } -ScriptBlock " $($_.TotalRenderingTime)"
+    Write-FormatViewExpression -if { $_.TotalRenderingTime } -ScriptBlock { " $($_.TotalRenderingTime)" }
 } -GroupByProperty OutputPath
