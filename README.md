@@ -5,5 +5,5 @@ PS3D [0.1]
 ### Commands
 |Verb  |Noun    |
 |------|--------|
-|[Get](docs/Get-OpenSCAD.md)      |[OpenSCAD](docs/Get-OpenScad.md)   |
+|[Get](docs/Get-OpenSCAD.md)      |[OpenSCAD](docs/Get-OpenSCAD.md)   |
 |[Invoke](docs/Invoke-OpenScad.md)|[OpenSCAD](docs/Invoke-OpenScad.md)|
