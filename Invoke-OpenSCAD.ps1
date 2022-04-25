@@ -201,7 +201,7 @@ $($MyInvocation.MyCommand.Name) @params
                     "-P"
                     $pre
                 )
-                 & $openScadCmd @preArgs @OpenScadArgument | =>[OpenScad.Output] -OpenSCADArguments $preArgs -OutputPath $outPath                
+                 & $openScadCmd @preArgs @OpenScadArgument *>&1 | =>[OpenScad.Output] -OpenSCADArguments $preArgs -OutputPath $outPath                
             }
 
             
@@ -239,7 +239,7 @@ $($MyInvocation.MyCommand.Name) @params
 
             Write-Verbose "$OpenScadCmd $($openScadArgs -join ' ')"
 
-            & $OpenScadCmd @OpenScadArgs @OpenScadArgument | =>[OpenScad.Output] -OpenSCADArguments $openScadArgs -OutputPath "$scadOutPath"
+            & $OpenScadCmd @OpenScadArgs @OpenScadArgument *>&1 | =>[OpenScad.Output] -OpenSCADArguments $openScadArgs -OutputPath "$scadOutPath"
 
             if (Test-Path $scadParamPath) {
                 Remove-Item $scadParamPath
