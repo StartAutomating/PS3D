@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-16"?>
+<!-- Generated with EZOut 1.8.6: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
+<Configuration>
+  <ViewDefinitions>
+    <View>
+      <Name>OpenSCAD.Output</Name>
+      <ViewSelectedBy>
+        <TypeName>OpenSCAD.Output</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>OutputPath</PropertyName>
+      </GroupBy>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <Text>Arguments</Text>
+              <ExpressionBinding>
+                <ScriptBlock> " $($_.OpenScadArguments -join ' ')" </ScriptBlock>
+              </ExpressionBinding>
+              <NewLine />
+              <Text>Rendering Time</Text>
+              <ExpressionBinding>
+                <ItemSelectionCondition>
+                  <ScriptBlock> $_.TotalRenderingTime </ScriptBlock>
+                </ItemSelectionCondition>
+                <ScriptBlock> " $($_.TotalRenderingTime)" </ScriptBlock>
+              </ExpressionBinding>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </View>
+  </ViewDefinitions>
+</Configuration>
