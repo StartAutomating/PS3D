@@ -6,4 +6,7 @@ Initial Release
 * Auto-formatting (#5)
 * Auto-publish (#4)
 * Formatting for OpenSCAD.Output (#9)
+* GitHub Action (#6)
+* Tests (#7)
+* Module Quality Criteria (#8)
 ---
