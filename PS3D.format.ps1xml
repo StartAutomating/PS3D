@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-16"?>
+<!-- Generated with EZOut 1.8.6: Install-Module EZOut or https://github.com/StartAutomating/EZOut -->
+<Configuration>
+  <ViewDefinitions>
+    <View>
+      <Name>OpenSCAD.Output</Name>
+      <ViewSelectedBy>
+        <TypeName>OpenSCAD.Output</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>OutputPath</PropertyName>
+      </GroupBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>TotalRenderingTime</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Facets</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>GeometriesInCache</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+  </ViewDefinitions>
+</Configuration>
