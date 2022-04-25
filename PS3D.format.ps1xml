@@ -10,26 +10,31 @@
       <GroupBy>
         <PropertyName>OutputPath</PropertyName>
       </GroupBy>
-      <CustomControl>
-        <CustomEntries>
-          <CustomEntry>
-            <CustomItem>
-              <Text>Arguments</Text>
-              <ExpressionBinding>
-                <ScriptBlock> " $($_.OpenScadArguments -join ' ')" </ScriptBlock>
-              </ExpressionBinding>
-              <NewLine />
-              <Text>Rendering Time</Text>
-              <ExpressionBinding>
-                <ItemSelectionCondition>
-                  <ScriptBlock> $_.TotalRenderingTime </ScriptBlock>
-                </ItemSelectionCondition>
-                <ScriptBlock> " $($_.TotalRenderingTime)" </ScriptBlock>
-              </ExpressionBinding>
-            </CustomItem>
-          </CustomEntry>
-        </CustomEntries>
-      </CustomControl>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+          <TableColumnHeader>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>TotalRenderingTime</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Facets</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>GeometriesInCache</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
     </View>
   </ViewDefinitions>
 </Configuration>
