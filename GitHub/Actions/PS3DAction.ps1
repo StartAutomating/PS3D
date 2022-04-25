@@ -1,0 +1,159 @@
+﻿<#
+.Synopsis
+    GitHub Action for PS3D
+.Description
+    GitHub Action for PS3D.  This will:
+
+    * Import PS3D
+    * Run all *.PS3D.ps1 files beneath the workflow directory
+    * Run a .PS3DScript parameter
+
+    Any files changed can be outputted by the script, and those changes can be checked back into the repo.
+    Make sure to use the "persistCredentials" option with checkout.
+#>
+
+param(
+# A PowerShell Script that uses PS3D.  
+# Any files outputted from the script will be added to the repository.
+# If those files have a .Message attached to them, they will be committed with that message.
+[string]
+$PS3DScript,
+
+# If set, will not process any files named *.PS3D.ps1
+[switch]
+$SkipPS3DPS1,
+
+# If provided, will commit any remaining changes made to the workspace with this commit message.
+# If no commit message is provided, changes will not be committed.
+[string]
+$CommitMessage,
+
+# The user email associated with a git commit.
+[string]
+$UserEmail,
+
+# The user name associated with a git commit.
+[string]
+$UserName
+)
+
+"::group::Parameters" | Out-Host
+[PSCustomObject]$PSBoundParameters | Format-List | Out-Host
+"::endgroup::" | Out-Host
+
+
+if ($PSVersionTable.Platform -eq 'Unix') {
+    $openScadInPath =  $ExecutionContext.SessionState.InvokeCommand.GetCommand('openscad', 'Application')
+    if (-not $openScadInPath -and $env:GITHUB_WORKFLOW) {
+        "::group::Installing OpenSCAD" | Out-Host
+        Set-Location $GITHUB_WORKSPACE
+        wget https://files.openscad.org/OpenSCAD-2021.01-x86_64.AppImage
+        sudo mv OpenSCAD-2021.01*-x86_64.AppImage /usr/local/bin/openscad
+        sudo chmod +x /usr/local/bin/openscad
+        "::endgroup::" | Out-Host
+    }
+}
+
+if ($env:GITHUB_ACTION_PATH) {
+    $PS3DModulePath = Join-Path $env:GITHUB_ACTION_PATH 'PS3D.psd1'
+    if (Test-path $PS3DModulePath) {
+        Import-Module $PS3DModulePath -Force -PassThru | Out-String
+    } else {
+        throw "PS3D not found"
+    }
+} elseif (-not (Get-Module PS3D)) {    
+    throw "Action Path not found"
+}
+
+"::notice title=ModuleLoaded::PS3D Loaded from Path - $($PS3DModulePath)" | Out-Host
+
+$anyFilesChanged = $false
+$processScriptOutput = { process { 
+    $out = $_
+    $outItem = Get-Item -Path $out -ErrorAction SilentlyContinue
+    $fullName, $shouldCommit = 
+        if ($out -is [IO.FileInfo]) {
+            $out.FullName, (git status $out.Fullname -s)
+        } elseif ($outItem) {
+            $outItem.FullName, (git status $outItem.Fullname -s)
+        }
+    if ($shouldCommit) {
+        git add $fullName
+        if ($out.Message) {
+            git commit -m "$($out.Message)"
+        } elseif ($out.CommitMessage) {
+            git commit -m "$($out.CommitMessage)"
+        }
+        $anyFilesChanged = $true
+    }
+    $out
+} }
+
+
+if (-not $UserName) { $UserName = $env:GITHUB_ACTOR }
+if (-not $UserEmail) { $UserEmail = "$UserName@github.com" }
+git config --global user.email $UserEmail
+git config --global user.name  $UserName
+
+if (-not $env:GITHUB_WORKSPACE) { throw "No GitHub workspace" }
+
+git pull | Out-Host
+
+$PS3DScriptStart = [DateTime]::Now
+if ($PS3DScript) {
+    Invoke-Expression -Command $PS3DScript |
+        . $processScriptOutput |
+        Out-Host
+}
+$PS3DScriptTook = [Datetime]::Now - $PS3DScriptStart
+"::set-output name=PS3DScriptRuntime::$($PS3DScriptTook.TotalMilliseconds)"   | Out-Host
+
+$PS3DPS1Start = [DateTime]::Now
+$PS3DPS1List  = @()
+if (-not $SkipPS3DPS1) {
+    $PS3DFiles = @(
+    Get-ChildItem -Recurse -Path $env:GITHUB_WORKSPACE |
+        Where-Object Name -Match '\.PS3D\.ps1$')
+        
+    if ($PS3DFiles) {
+        $PS3DFiles|        
+        ForEach-Object {
+            $PS3DPS1List += $_.FullName.Replace($env:GITHUB_WORKSPACE, '').TrimStart('/')
+            $PS3DPS1Count++
+            "::notice title=Running::$($_.Fullname)" | Out-Host
+            . $_.FullName |            
+                . $processScriptOutput  | 
+                Out-Host
+        }
+    }
+}
+
+$PS3DPS1EndStart = [DateTime]::Now
+$PS3DPS1Took = [Datetime]::Now - $PS3DPS1Start
+"::set-output name=PS3DPS1Count::$($PS3DPS1List.Length)"   | Out-Host
+"::set-output name=PS3DPS1Files::$($PS3DPS1List -join ';')"   | Out-Host
+"::set-output name=PS3DPS1Runtime::$($PS3DPS1Took.TotalMilliseconds)"   | Out-Host
+if ($CommitMessage -or $anyFilesChanged) {
+    if ($CommitMessage) {
+        dir $env:GITHUB_WORKSPACE -Recurse |
+            ForEach-Object {
+                $gitStatusOutput = git status $_.Fullname -s
+                if ($gitStatusOutput) {
+                    git add $_.Fullname
+                }
+            }
+
+        git commit -m $ExecutionContext.SessionState.InvokeCommand.ExpandString($CommitMessage)
+    }    
+
+    $checkDetached = git symbolic-ref -q HEAD
+    if (-not $LASTEXITCODE) {
+        "::notice::Pushing Changes" | Out-Host
+        git push        
+        "Git Push Output: $($gitPushed  | Out-String)"
+    } else {
+        "::notice::Not pushing changes (on detached head)" | Out-Host
+        $LASTEXITCODE = 0
+        exit 0
+    }
+}
